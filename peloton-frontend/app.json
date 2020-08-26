@@ -23,6 +23,9 @@
         "CFBundleAllowMixedLocalizations": true
       }
     },
+    "android": {
+      "package": "com.woowaguys.peloton"
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     }
