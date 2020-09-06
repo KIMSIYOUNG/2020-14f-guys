@@ -45,4 +45,28 @@ public class AdminSql {
             .append(" WHERE ID = (:memberId)")
             .toString();
     }
+
+    public static String countRiders() {
+        return new StringBuilder()
+            .append("SELECT COUNT(*)")
+            .append(" FROM RIDER")
+            .append(" WHERE RACE_ID IN (:raceIds)")
+            .toString();
+    }
+
+    public static String countNotEndRaces() {
+        return new StringBuilder()
+            .append("SELECT COUNT(*)")
+            .append(" FROM RACE")
+            .append(" WHERE END_DATE >= (:now)")
+            .toString();
+    }
+
+    public static String findNotEndRaces() {
+        return new StringBuilder()
+            .append("SELECT RACE.ID AS ID")
+            .append(" FROM RACE")
+            .append(" WHERE END_DATE >= (:now)")
+            .toString();
+    }
 }

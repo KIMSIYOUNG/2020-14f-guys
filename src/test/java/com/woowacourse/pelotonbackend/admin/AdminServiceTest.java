@@ -15,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import com.woowacourse.pelotonbackend.race.domain.RaceFixture;
+
 @ExtendWith(MockitoExtension.class)
 class AdminServiceTest {
     private AdminService adminService;
@@ -47,5 +49,16 @@ class AdminServiceTest {
 
         verify(adminRepository, times(3)).updateMembersCash(any(Long.class), any(BigDecimal.class));
         verify(adminRepository, times(1)).updatePendingStatuses(any(List.class));
+    }
+
+    @DisplayName("어플리케이션 상태정보를 조회한다.(진행중인 레이스와 참여 인원들)")
+    @Test
+    void retrieveAppInfo() {
+        when(adminRepository.findCountActiveRaces()).thenReturn(AdminFixture.TEST_RACE_COUNT);
+        when(adminRepository.findCountActiveRiders()).thenReturn(AdminFixture.TEST_RIDER_COUNT);
+
+        ApplicationInfo applicationInfo = adminService.retrieveAppInfo();
+
+        assertThat(applicationInfo).isEqualToComparingFieldByField(AdminFixture.createAppInfo());
     }
 }

@@ -72,15 +72,6 @@ public class RiderFixture {
             .build();
     }
 
-    public static Rider createRiderWithIdAndMemberId(final Long id) {
-        return Rider.builder()
-            .id(id)
-            .raceId(AggregateReference.to(TEST_RACE_ID))
-            .memberId(AggregateReference.to(id))
-            .createdAt(TEST_CREATED_DATE_TIME)
-            .build();
-    }
-
     public static Rider createRiderWithIdAndRaceId(final Long riderId, final Long raceId) {
         return Rider.builder()
             .id(riderId)

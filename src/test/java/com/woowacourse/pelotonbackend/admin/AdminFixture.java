@@ -23,6 +23,9 @@ public class AdminFixture {
     );
     public static final PageRequest TEST_PENDING_PAGE = PageRequest.of(0, 3);
     public static final List<Long> TEST_PENDING_CASH_IDS = Lists.newArrayList(1L, 2L);
+    public static final Long TEST_RACE_COUNT = 2L;
+    public static final Long TEST_RIDER_COUNT = 6L;
+
 
     public static Page<PendingMember> pendingMembers() {
         return PageableExecutionUtils.getPage(
@@ -51,6 +54,13 @@ public class AdminFixture {
     public static PendingMemberUpdateRequest createPendingCashUpdateIds() {
         return PendingMemberUpdateRequest.builder()
             .pendingCashIds(TEST_PENDING_CASH_IDS)
+            .build();
+    }
+
+    public static ApplicationInfo createAppInfo() {
+        return ApplicationInfo.builder()
+            .raceCount(TEST_RACE_COUNT)
+            .riderCount(TEST_RIDER_COUNT)
             .build();
     }
 }

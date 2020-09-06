@@ -1,7 +1,9 @@
 package com.woowacourse.pelotonbackend.admin;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,12 +18,14 @@ import org.springframework.stereotype.Repository;
 
 import com.woowacourse.pelotonbackend.pendingcash.CashStatus;
 import com.woowacourse.pelotonbackend.pendingcash.PendingCash;
+import com.woowacourse.pelotonbackend.race.domain.Race;
 
 @Repository
 public class AdminRepository {
     private final NamedParameterJdbcOperations jdbcOperations;
     private final EntityRowMapper<PendingMember> rowMapper;
     private final EntityRowMapper<PendingCash> cashRowMapper;
+    private final EntityRowMapper<Race> raceRowMapper;
 
     @SuppressWarnings("unchecked")
     public AdminRepository(
@@ -37,6 +41,11 @@ public class AdminRepository {
 
         this.cashRowMapper = new EntityRowMapper<>(
             (RelationalPersistentEntity<PendingCash>)mappingContext.getRequiredPersistentEntity(PendingCash.class),
+            jdbcConverter
+        );
+
+        this.raceRowMapper = new EntityRowMapper<>(
+            (RelationalPersistentEntity<Race>)mappingContext.getRequiredPersistentEntity(Race.class),
             jdbcConverter
         );
     }
@@ -75,5 +84,30 @@ public class AdminRepository {
             .addValue("cash", cash);
 
         this.jdbcOperations.update(AdminSql.updateMemberCash(), parameterSource);
+    }
+
+    public Long findCountActiveRiders() {
+        List<Long> raceIds = findActiveRaces().stream()
+            .map(Race::getId)
+            .collect(Collectors.toList());
+
+        MapSqlParameterSource paramSource = new MapSqlParameterSource()
+            .addValue("raceIds", raceIds);
+
+        return this.jdbcOperations.queryForObject(AdminSql.countRiders(), paramSource, Long.class);
+    }
+
+    public Long findCountActiveRaces() {
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource()
+            .addValue("now", LocalDateTime.now());
+
+        return this.jdbcOperations.queryForObject(AdminSql.countNotEndRaces(), parameterSource, Long.class);
+    }
+
+    private List<Race> findActiveRaces() {
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource()
+            .addValue("now", LocalDateTime.now());
+
+        return this.jdbcOperations.query(AdminSql.findNotEndRaces(), parameterSource, raceRowMapper);
     }
 }

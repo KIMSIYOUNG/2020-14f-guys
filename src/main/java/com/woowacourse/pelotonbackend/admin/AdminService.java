@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 @Transactional
-public class AdminService {
+class AdminService {
     private final AdminRepository adminRepository;
 
     void updateMemberCashes(PendingMemberUpdateRequest request) {
@@ -31,5 +31,14 @@ public class AdminService {
     Page<PendingMember> retrieveMemberWithPendingCash(Pageable pageable) {
 
         return adminRepository.findMembersByPendingCash(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    ApplicationInfo retrieveAppInfo() {
+
+        return ApplicationInfo.builder()
+            .riderCount(adminRepository.findCountActiveRiders())
+            .raceCount(adminRepository.findCountActiveRaces())
+            .build();
     }
 }

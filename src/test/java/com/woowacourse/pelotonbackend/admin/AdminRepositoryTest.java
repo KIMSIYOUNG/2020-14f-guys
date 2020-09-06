@@ -23,6 +23,11 @@ import com.woowacourse.pelotonbackend.pendingcash.CashStatus;
 import com.woowacourse.pelotonbackend.pendingcash.PendingCash;
 import com.woowacourse.pelotonbackend.pendingcash.PendingCashRepository;
 import com.woowacourse.pelotonbackend.pendingcash.PendingFixture;
+import com.woowacourse.pelotonbackend.race.domain.Race;
+import com.woowacourse.pelotonbackend.race.domain.RaceFixture;
+import com.woowacourse.pelotonbackend.race.domain.RaceRepository;
+import com.woowacourse.pelotonbackend.rider.domain.RiderFixture;
+import com.woowacourse.pelotonbackend.rider.domain.RiderRepository;
 
 @SpringBootTest
 @TestExecutionListeners(
@@ -38,6 +43,12 @@ class AdminRepositoryTest {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private RaceRepository raceRepository;
+
+    @Autowired
+    private RiderRepository riderRepository;
 
     @DisplayName("여러개의 pendingMember를 조회한다.")
     @Test
@@ -126,5 +137,36 @@ class AdminRepositoryTest {
         Member member = memberRepository.findById(firstMember.getId()).get();
 
         assertThat(member.getCash()).isEqualTo(TEST_CASH.plus(MemberFixture.CASH));
+    }
+
+    @DisplayName("현재 달리고 있는 라이더들의 인원수를 조회한다."
+        + "현재 진행중인 레이스 1개, 참가 인원 2명"
+        + "이미 끝난 레이스 1개, 참가 인원 2명")
+    @Test
+    void countActiveRiders() {
+        raceRepository.save(RaceFixture.createWithoutId());
+        riderRepository.save(RiderFixture.createRiderWithoutId());
+        riderRepository.save(RiderFixture.createRiderWithoutId());
+
+        Race nonActiveRace = raceRepository.save(RaceFixture.createNonActiveWithoutId());
+        riderRepository.save(RiderFixture.createRiderWithIdAndRaceId(null, nonActiveRace.getId()));
+        riderRepository.save(RiderFixture.createRiderWithIdAndRaceId(null, nonActiveRace.getId()));
+
+        Long count = adminRepository.findCountActiveRiders();
+
+        assertThat(count).isEqualTo(2);
+    }
+
+    @DisplayName("현재 진행중인 레이스의 갯수를 조회한다."
+        + "진행중인 레이스 2개, 이미 끝난 레이스 1개 = 총 3개")
+    @Test
+    void countActiveRaces() {
+        raceRepository.save(RaceFixture.createWithoutId());
+        raceRepository.save(RaceFixture.createWithoutId());
+        raceRepository.save(RaceFixture.createNonActiveWithoutId());
+
+        Long count = adminRepository.findCountActiveRaces();
+
+        assertThat(count).isEqualTo(2);
     }
 }

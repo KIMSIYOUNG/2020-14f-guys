@@ -31,4 +31,10 @@ public class AdminController {
 
         return ResponseEntity.ok(adminService.retrieveMemberWithPendingCash(pageable));
     }
+
+    @GetMapping("/appInfo")
+    public ResponseEntity<ApplicationInfo> retrieveAppInfo() {
+
+        return ResponseEntity.ok(adminService.retrieveAppInfo());
+    }
 }

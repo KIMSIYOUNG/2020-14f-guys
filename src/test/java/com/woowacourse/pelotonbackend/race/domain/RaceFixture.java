@@ -46,6 +46,12 @@ public class RaceFixture {
         return createWithId(null);
     }
 
+    public static Race createNonActiveWithoutId() {
+        return createWithId(null).toBuilder()
+            .raceDuration(new DateDuration(TEST_START_TIME_PAST, TEST_END_TIME_PAST))
+            .build();
+    }
+
     public static Race createWithId(final Long id) {
         return Race.builder()
             .id(id)

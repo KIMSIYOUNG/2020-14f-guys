@@ -76,4 +76,22 @@ class AdminControllerTest {
         )
             .andExpect(status().isNoContent());
     }
+
+    @DisplayName("어플의 간단한 정보를 조회할 수 있다."
+        + "진행중인 레이스와 레이스에 참여중인 인원들")
+    @Test
+    void getAppInfo() throws Exception {
+        ApplicationInfo expected = AdminFixture.createAppInfo();
+        given(adminInterceptor.preHandle(any(HttpServletRequest.class), any(HttpServletResponse.class),
+            any(HandlerMethod.class))).willReturn(true);
+        given(adminService.retrieveAppInfo()).willReturn(expected);
+
+        mockMvc.perform(get("/api/admin/appInfo")
+            .header(HttpHeaders.AUTHORIZATION, LoginFixture.getAdminTokenHeader())
+            .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("raceCount").value(expected.getRaceCount()))
+            .andExpect(jsonPath("riderCount").value(expected.getRiderCount()));
+    }
 }
