@@ -47,7 +47,8 @@ public enum ErrorCode {
     CERTIFICATION_NOT_FOUND(404, "인증 정보를 찾을 수 없어요.😂"),
     CERTIFICATION_DUPLICATE(400, "이미 인증하셨어요.😀"),
 
-    MONEY_NOT_ENOUGH(400, "캐쉬가 부족해요😂 충전해주세요.");
+    MONEY_NOT_ENOUGH(400, "캐쉬가 부족해요😂 충전해주세요."),
+    PENDING_CASH_NOT_FOUND(404, "존재하지 않는 충전 요청이에요!😂");
 
     private final int status;
     private final String code;

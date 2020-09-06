@@ -62,4 +62,18 @@ class AdminControllerTest {
             .andExpect(jsonPath("$.pageable.pageSize").value(AdminFixture.TEST_PENDING_PAGE.getPageSize()))
             .andExpect(jsonPath("$.pageable.offset").value(AdminFixture.TEST_PENDING_PAGE.getOffset()));
     }
+
+    @DisplayName("회원들의 캐시를 충전하는 요청을 성공적으로 수행한다.")
+    @Test
+    void updateCashes() throws Exception {
+        given(adminInterceptor.preHandle(any(HttpServletRequest.class), any(HttpServletResponse.class),
+            any(HandlerMethod.class))).willReturn(true);
+
+        mockMvc.perform(put("/api/admin/pending")
+            .header(HttpHeaders.AUTHORIZATION, LoginFixture.getAdminTokenHeader())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsBytes(AdminFixture.createPendingCashUpdateIds()))
+        )
+            .andExpect(status().isNoContent());
+    }
 }

@@ -1,8 +1,13 @@
 package com.woowacourse.pelotonbackend.admin;
 
+import static com.woowacourse.pelotonbackend.admin.AdminFixture.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +19,8 @@ import com.woowacourse.pelotonbackend.DataInitializeExecutionListener;
 import com.woowacourse.pelotonbackend.member.domain.Member;
 import com.woowacourse.pelotonbackend.member.domain.MemberFixture;
 import com.woowacourse.pelotonbackend.member.domain.MemberRepository;
+import com.woowacourse.pelotonbackend.pendingcash.CashStatus;
+import com.woowacourse.pelotonbackend.pendingcash.PendingCash;
 import com.woowacourse.pelotonbackend.pendingcash.PendingCashRepository;
 import com.woowacourse.pelotonbackend.pendingcash.PendingFixture;
 
@@ -80,6 +87,44 @@ class AdminRepositoryTest {
             () -> assertThat(result.getContent()).hasSize(0),
             () -> assertThat(result.getTotalPages()).isEqualTo(0),
             () -> assertThat(result.getTotalElements()).isEqualTo(0)
-            );
+        );
+    }
+
+    @DisplayName("pendingCash에 대해서 findAllByIds() 를 수행할 수 있다.")
+    @Test
+    void findPendingCashesByIds() {
+        pendingCashRepository.save(PendingFixture.createWithOutIdWithMemberId(MemberFixture.MEMBER_ID));
+        pendingCashRepository.save(PendingFixture.createWithOutIdWithMemberId(MemberFixture.MEMBER_ID));
+
+        List<PendingCash> cashes = adminRepository.findPendingCashes(Arrays.asList(1L, 2L));
+        assertThat(cashes).hasSize(2);
+    }
+
+    @DisplayName("Pending상태를 정상적으로 수정한다.")
+    @Test
+    void updatePendingCash() {
+        Member firstMember = memberRepository.save(
+            MemberFixture.createWithoutId(MemberFixture.KAKAO_ID, MemberFixture.EMAIL, MemberFixture.NAME));
+        pendingCashRepository.save(PendingFixture.createWithOutIdWithMemberId(firstMember.getId()));
+        pendingCashRepository.save(PendingFixture.createWithOutIdWithMemberId(firstMember.getId()));
+
+        adminRepository.updatePendingStatuses(Lists.newArrayList(1L, 2L));
+        Iterable<PendingCash> pendingCashes = pendingCashRepository.findAll();
+
+        pendingCashes.forEach((cash) -> assertThat(cash.getCashStatus()).isEqualTo(CashStatus.RESOLVE));
+    }
+
+    @DisplayName("회원의 캐시를 정상적으로 업데이트 한다.")
+    @Test
+    void updateMemberCashes() {
+        Member firstMember = memberRepository.save(
+            MemberFixture.createWithoutId(MemberFixture.KAKAO_ID, MemberFixture.EMAIL, MemberFixture.NAME));
+        pendingCashRepository.save(PendingFixture.createWithOutIdWithMemberId(firstMember.getId()));
+        pendingCashRepository.save(PendingFixture.createWithOutIdWithMemberId(firstMember.getId()));
+
+        adminRepository.updateMembersCash(firstMember.getId(), TEST_CASH.getCash());
+        Member member = memberRepository.findById(firstMember.getId()).get();
+
+        assertThat(member.getCash()).isEqualTo(TEST_CASH.plus(MemberFixture.CASH));
     }
 }

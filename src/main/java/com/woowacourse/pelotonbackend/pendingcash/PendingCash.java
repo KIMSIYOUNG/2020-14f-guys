@@ -32,7 +32,7 @@ public class PendingCash {
     @Embedded.Empty @Valid
     private final Cash cash;
 
-    private final CashStatus cashStatus;
+    private CashStatus cashStatus;
 
     @CreatedDate @PastOrPresent
     @With(AccessLevel.PACKAGE)
@@ -41,4 +41,8 @@ public class PendingCash {
     @LastModifiedDate @PastOrPresent
     @With(AccessLevel.PACKAGE)
     private final LocalDateTime updatedAt;
+
+    public void updateStatus(CashStatus status) {
+        this.cashStatus = status;
+    }
 }
