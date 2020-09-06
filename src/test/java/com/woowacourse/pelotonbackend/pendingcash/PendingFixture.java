@@ -15,4 +15,12 @@ public class PendingFixture {
             .cashStatus(STATUS)
             .build();
     }
+
+    public static PendingCash createWithOutIdWithMemberId(final long id) {
+        return PendingCash.builder()
+            .memberId(AggregateReference.to(id))
+            .cash(MemberFixture.CASH)
+            .cashStatus(STATUS)
+            .build();
+    }
 }

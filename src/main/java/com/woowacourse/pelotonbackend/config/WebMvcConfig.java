@@ -9,6 +9,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.woowacourse.pelotonbackend.admin.AdminInterceptor;
 import com.woowacourse.pelotonbackend.member.presentation.LoginMemberArgumentResolver;
 import com.woowacourse.pelotonbackend.support.BearerAuthInterceptor;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
     private final BearerAuthInterceptor bearerAuthInterceptor;
+    private final AdminInterceptor adminInterceptor;
     private final LoginMemberArgumentResolver argumentResolver;
 
     @Override
@@ -25,6 +27,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
             "/api/certifications/**", "/api/members/**", "/api/missions/**",
             "/api/races/**", "/api/reports/**", "/api/riders/**", "/api/queries/**", "/api/calculations/**");
         registry.addInterceptor(bearerAuthInterceptor).addPathPatterns(pathPatterns);
+        registry.addInterceptor(adminInterceptor).addPathPatterns("/api/admin/**");
     }
 
     @Override

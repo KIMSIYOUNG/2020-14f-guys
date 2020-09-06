@@ -13,6 +13,7 @@ public class LoginFixture {
     public static final String CODE_VALUE = "CODE";
     public static final String URL = "https://peloton.ga";
     public static final String TOKEN = "SAMPLE_ACCESS_TOKEN";
+    public static final String ADMIN_TOKEN = "SAMPLE_ADMIN_ACCESS_TOKEN";
     public static final String LOGIN_SUCCESS = "true";
     public static final String LOGIN_FAIL = "false";
     public static final String SERVER_URI = "http://localhost:8080";
@@ -34,10 +35,10 @@ public class LoginFixture {
     public static final String BASIC_PROFILE_URL= "https://14f-guys-image.s3.ap-northeast-2.amazonaws.com/basic.profile.image.png";
 
     public static class TestController {
+
         public void testMethod(@LoginMember Member member) {
         }
     }
-
     public static KakaoTokenResponse createMockKakaoTokenResponse() {
         return KakaoTokenResponse.builder()
             .accessToken(TOKEN)
@@ -100,5 +101,9 @@ public class LoginFixture {
 
     public static String getTokenHeader() {
         return TOKEN_TYPE + TOKEN;
+    }
+
+    public static String getAdminTokenHeader() {
+        return TOKEN_TYPE + ADMIN_TOKEN;
     }
 }
