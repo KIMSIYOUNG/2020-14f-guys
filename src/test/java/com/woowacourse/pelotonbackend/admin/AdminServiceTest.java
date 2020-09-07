@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,7 +16,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import com.woowacourse.pelotonbackend.race.domain.RaceFixture;
+import com.woowacourse.pelotonbackend.certification.domain.Certification;
+import com.woowacourse.pelotonbackend.certification.presentation.dto.CertificationResponse;
+import com.woowacourse.pelotonbackend.certification.presentation.dto.CertificationResponses;
 
 @ExtendWith(MockitoExtension.class)
 class AdminServiceTest {
@@ -32,7 +35,7 @@ class AdminServiceTest {
     @DisplayName("현재 대기중인 충전 금액들을 모두 불러온다.")
     @Test
     void getPendingMembers() {
-        Page<PendingMember> expected = AdminFixture.pendingMembers();
+        Page<PendingMember> expected = AdminFixture.createPendingMembers();
         when(adminService.retrieveMemberWithPendingCash(any(PageRequest.class))).thenReturn(expected);
 
         Page<PendingMember> pendingMembers = adminService.retrieveMemberWithPendingCash(AdminFixture.TEST_PENDING_PAGE);
@@ -43,7 +46,7 @@ class AdminServiceTest {
     @DisplayName("요청 받은 캐쉬를 충전한다.")
     @Test
     void updateCashes() {
-        when(adminRepository.findPendingCashes(any(List.class))).thenReturn(AdminFixture.pendingCashes());
+        when(adminRepository.findPendingCashes(any(List.class))).thenReturn(AdminFixture.createPendingCashes());
 
         adminService.updateMemberCashes(AdminFixture.createPendingCashUpdateIds());
 
@@ -60,5 +63,37 @@ class AdminServiceTest {
         ApplicationInfo applicationInfo = adminService.retrieveAppInfo();
 
         assertThat(applicationInfo).isEqualToComparingFieldByField(AdminFixture.createAppInfo());
+    }
+
+    @DisplayName("인증 정보를 정상적으로 조회한다.")
+    @Test
+    void retrieveCertifications() {
+        Page<Certification> expected = AdminFixture.createCertificationsWithPage();
+        when(adminRepository.findAllCertifications(any())).thenReturn(expected);
+
+        CertificationResponses response = adminService.retrieveCertifications(AdminFixture.TEST_CERTIFICATION_PAGE);
+
+        List<Long> responseIds = response.getCertifications().getContent().stream()
+            .map(CertificationResponse::getId)
+            .collect(Collectors.toList());
+        List<Long> expectedIds = expected.getContent().stream()
+            .map(Certification::getId)
+            .collect(Collectors.toList());
+
+        assertThat(expectedIds).isEqualTo(responseIds);
+    }
+
+    @DisplayName("정상적으로 인증 정보를 수정한다.")
+    @Test
+    void updateCertifications() {
+        adminService.updateCertificaitonsStatus(AdminFixture.createCertificationUpdateRequests());
+        verify(adminRepository).updateCertifications(any(), any());
+    }
+
+    @DisplayName("정상적으로 인증 정보를 삭제한다.")
+    @Test
+    void deleteCertifications() {
+        adminService.deleteCertificationByIds(AdminFixture.createImproperCertificationRequests());
+        verify(adminRepository).deleteCertificationByIds(any());
     }
 }

@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import com.woowacourse.pelotonbackend.certification.domain.CertificationFixture;
+import com.woowacourse.pelotonbackend.certification.presentation.dto.CertificationRequest;
+import com.woowacourse.pelotonbackend.certification.presentation.dto.CertificationResponse;
 import com.woowacourse.pelotonbackend.member.domain.MemberFixture;
 import com.woowacourse.pelotonbackend.member.presentation.dto.MemberCashUpdateRequest;
 import com.woowacourse.pelotonbackend.member.presentation.dto.MemberResponse;
@@ -18,6 +21,8 @@ import com.woowacourse.pelotonbackend.rider.domain.RiderFixture;
 import com.woowacourse.pelotonbackend.support.AcceptanceTest;
 import com.woowacourse.pelotonbackend.support.dto.JwtTokenResponse;
 import com.woowacourse.pelotonbackend.vo.Cash;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 
 public class AdminAcceptanceTest extends AcceptanceTest {
 
@@ -40,6 +45,16 @@ public class AdminAcceptanceTest extends AcceptanceTest {
      * When 관리자는 2개의 충전을 승인한다.
      * Then 요청을 보낸 회원의 캐시가 충전된다.
      * Then pending cash의 상태가 변경된다.
+     *
+     * Given 인증 사진들이 6개 등록되어 있다.
+     * When 관리자는 인증 사진을 조회한다.
+     * Then 인증 사진들이 조회된다.
+     *
+     * When 인증 사진 중 2개(1번과 2번)를 FAIL로 수정한다.
+     * Then 인증 사진의 상태가 변경된다.
+     *
+     * When 인증 사진 중 일부를(3번과 4번) 삭제한다.
+     * Then 인증 사진의 일부가 삭제 되었다.
      */
     @DisplayName("띄어쓰기 단위로, 하나의 Given When Then")
     @Test
@@ -57,6 +72,79 @@ public class AdminAcceptanceTest extends AcceptanceTest {
         fetchPendingCashesAndVerifyCount(adminToken);
         fetchMembersAndVerifyCash(memberTokens);
 
+        List<CertificationRequest> certificationCreateRequests = CertificationFixture.createMockCertificationRequestByRiderIdAndCount(
+            CertificationFixture.createRiderToCount());
+        createCertifications(memberTokens.get(0), certificationCreateRequests);
+        fetchCertificationsAndVerify(adminToken);
+
+        fetchUpdateCertificationsStatus(adminToken, AdminFixture.createCertificationUpdateRequests());
+        fetchUpdatedCertificationsAndVerify(adminToken);
+
+        fetchDeleteImproperCertifications(adminToken, AdminFixture.createImproperCertificationRequests());
+        fetchDeletedCertificationsAndVerify(adminToken);
+    }
+
+    private void fetchDeletedCertificationsAndVerify(JwtTokenResponse adminToken) {
+        List<CertificationResponse> response = fetchCertifications(adminToken)
+            .jsonPath()
+            .getList("certifications.content", CertificationResponse.class);
+
+        assertThat(response).hasSize(4);
+    }
+
+    private ExtractableResponse<Response> fetchCertifications(JwtTokenResponse adminToken) {
+        return given()
+            .header(createTokenHeader(adminToken))
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .get("/api/admin/certifications")
+            .then()
+            .statusCode(HttpStatus.OK.value())
+            .extract();
+    }
+
+    private void fetchDeleteImproperCertifications(JwtTokenResponse adminToken, ImProperCertificationRequest request) {
+        given()
+            .header(createTokenHeader(adminToken))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(request)
+            .when()
+            .delete("/api/admin/certifications")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    private void fetchUpdatedCertificationsAndVerify(JwtTokenResponse adminToken) {
+        List<CertificationResponse> response = fetchCertifications(adminToken).jsonPath()
+            .getList("certifications.content", CertificationResponse.class);
+
+        long changedCount = response.stream()
+            .filter(certification -> AdminFixture.TEST_FAIL_CERTIFICATION_IDS.contains(certification.getId()))
+            .count();
+
+        assertThat(changedCount).isEqualTo(2);
+    }
+
+    private void fetchUpdateCertificationsStatus(JwtTokenResponse token,
+        CertificationStatusUpdateRequests request) {
+
+        given()
+            .header(createTokenHeader(token))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(request)
+            .when()
+            .patch("/api/admin/certifications")
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.OK.value());
+    }
+
+    private void fetchCertificationsAndVerify(JwtTokenResponse adminToken) {
+        List<CertificationResponse> content = fetchCertifications(adminToken).jsonPath()
+            .getList("certifications.content", CertificationResponse.class);
+
+        assertThat(content).hasSize(6);
     }
 
     private void VerifyAdminInfoByMember(JwtTokenResponse tokenResponse) {
@@ -75,9 +163,11 @@ public class AdminAcceptanceTest extends AcceptanceTest {
             .map(this::findMember)
             .collect(Collectors.toList());
 
-        Cash chargedCash = MemberFixture.CASH.minus(new Cash(RaceFixture.TEST_MONEY_AMOUNT))
+        Cash chargedCash = MemberFixture.CASH
+            .minus(new Cash(RaceFixture.TEST_MONEY_AMOUNT))
             .plus(MemberFixture.UPDATE_CASH);
-        Cash unChargedCash = MemberFixture.CASH.minus(new Cash(RaceFixture.TEST_MONEY_AMOUNT));
+        Cash unChargedCash = MemberFixture.CASH
+            .minus(new Cash(RaceFixture.TEST_MONEY_AMOUNT));
 
         assertThat(members.get(0).getCash()).isEqualTo(chargedCash);
         assertThat(members.get(1).getCash()).isEqualTo(chargedCash);

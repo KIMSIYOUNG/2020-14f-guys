@@ -23,6 +23,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.method.HandlerMethod;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.woowacourse.pelotonbackend.certification.presentation.dto.CertificationResponses;
 import com.woowacourse.pelotonbackend.member.domain.LoginFixture;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -49,7 +50,7 @@ class AdminControllerTest {
     @DisplayName("충전을 기다리고 있는 회원을 모두 조회한다.")
     @Test
     void getPendingMembers() throws Exception {
-        given(adminService.retrieveMemberWithPendingCash(any())).willReturn(AdminFixture.pendingMembers());
+        given(adminService.retrieveMemberWithPendingCash(any())).willReturn(AdminFixture.createPendingMembers());
         given(adminInterceptor.preHandle(any(HttpServletRequest.class), any(HttpServletResponse.class),
             any(HandlerMethod.class))).willReturn(true);
 
@@ -93,5 +94,48 @@ class AdminControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("raceCount").value(expected.getRaceCount()))
             .andExpect(jsonPath("riderCount").value(expected.getRiderCount()));
+    }
+
+    @DisplayName("인증 사진을 모두 보여준다.")
+    @Test
+    void getCertifications() throws Exception {
+        given(adminInterceptor.preHandle(any(HttpServletRequest.class), any(HttpServletResponse.class),
+            any(HandlerMethod.class))).willReturn(true);
+        CertificationResponses certificationResponses = AdminFixture.createCertificationResponses();
+        given(adminService.retrieveCertifications(any())).willReturn(certificationResponses);
+
+        mockMvc.perform(get("/api/admin/certifications")
+            .header(HttpHeaders.AUTHORIZATION, LoginFixture.getAdminTokenHeader())
+            .accept(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk());
+    }
+
+    @DisplayName("인증 사진 중 일부의 상태를 수정할 수 있다.")
+    @Test
+    void updateCertifications() throws Exception {
+        given(adminInterceptor.preHandle(any(HttpServletRequest.class), any(HttpServletResponse.class),
+            any(HandlerMethod.class))).willReturn(true);
+
+        mockMvc.perform(patch("/api/admin/certifications")
+            .header(HttpHeaders.AUTHORIZATION, LoginFixture.getAdminTokenHeader())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsBytes(AdminFixture.createCertificationUpdateRequests()))
+        )
+            .andExpect(status().isOk());
+    }
+
+    @DisplayName("인증 사진중 일부를 삭제할 수 있다.")
+    @Test
+    void deleteCertifications() throws Exception {
+        given(adminInterceptor.preHandle(any(HttpServletRequest.class), any(HttpServletResponse.class),
+            any(HandlerMethod.class))).willReturn(true);
+
+        mockMvc.perform(delete("/api/admin/certifications")
+            .header(HttpHeaders.AUTHORIZATION, LoginFixture.getAdminTokenHeader())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsBytes(AdminFixture.createImproperCertificationRequests()))
+        )
+            .andExpect(status().isNoContent());
     }
 }

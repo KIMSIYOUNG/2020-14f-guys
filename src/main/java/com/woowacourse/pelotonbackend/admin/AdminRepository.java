@@ -16,6 +16,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
 
+import com.woowacourse.pelotonbackend.certification.domain.Certification;
+import com.woowacourse.pelotonbackend.certification.domain.CertificationStatus;
 import com.woowacourse.pelotonbackend.pendingcash.CashStatus;
 import com.woowacourse.pelotonbackend.pendingcash.PendingCash;
 import com.woowacourse.pelotonbackend.race.domain.Race;
@@ -26,6 +28,7 @@ public class AdminRepository {
     private final EntityRowMapper<PendingMember> rowMapper;
     private final EntityRowMapper<PendingCash> cashRowMapper;
     private final EntityRowMapper<Race> raceRowMapper;
+    private final EntityRowMapper<Certification> certificationRowMapper;
 
     @SuppressWarnings("unchecked")
     public AdminRepository(
@@ -46,6 +49,11 @@ public class AdminRepository {
 
         this.raceRowMapper = new EntityRowMapper<>(
             (RelationalPersistentEntity<Race>)mappingContext.getRequiredPersistentEntity(Race.class),
+            jdbcConverter
+        );
+
+        this.certificationRowMapper = new EntityRowMapper<>(
+            (RelationalPersistentEntity<Certification>)mappingContext.getRequiredPersistentEntity(Certification.class),
             jdbcConverter
         );
     }
@@ -109,5 +117,32 @@ public class AdminRepository {
             .addValue("now", LocalDateTime.now());
 
         return this.jdbcOperations.query(AdminSql.findNotEndRaces(), parameterSource, raceRowMapper);
+    }
+
+    public Page<Certification> findAllCertifications(Pageable pageable) {
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource()
+            .addValue("offset", pageable.getOffset())
+            .addValue("pageSize", pageable.getPageSize());
+
+        List<Certification> certifications = this.jdbcOperations.query(AdminSql.findCertifications(),
+            parameterSource, certificationRowMapper);
+
+        return PageableExecutionUtils.getPage(certifications, pageable, () ->
+            this.jdbcOperations.queryForObject(AdminSql.countByCertifications(), parameterSource, Long.class));
+    }
+
+    public void updateCertifications(List<Long> ids, CertificationStatus status) {
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource()
+            .addValue("ids", ids)
+            .addValue("status", status.name());
+
+        this.jdbcOperations.update(AdminSql.updateCertifications(), parameterSource);
+    }
+
+    public void deleteCertificationByIds(List<Long> ids) {
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource()
+            .addValue("ids", ids);
+
+        this.jdbcOperations.update(AdminSql.deleteCertificationByIds(), parameterSource);
     }
 }

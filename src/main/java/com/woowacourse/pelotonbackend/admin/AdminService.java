@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.woowacourse.pelotonbackend.certification.domain.Certification;
+import com.woowacourse.pelotonbackend.certification.presentation.dto.CertificationResponses;
 import com.woowacourse.pelotonbackend.pendingcash.CashStatus;
 import com.woowacourse.pelotonbackend.pendingcash.PendingCash;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +42,21 @@ class AdminService {
             .riderCount(adminRepository.findCountActiveRiders())
             .raceCount(adminRepository.findCountActiveRaces())
             .build();
+    }
+
+    @Transactional(readOnly = true)
+    CertificationResponses retrieveCertifications(Pageable pageable) {
+        Page<Certification> certifications = adminRepository.findAllCertifications(pageable);
+
+        return CertificationResponses.of(certifications);
+    }
+
+    void updateCertificaitonsStatus(CertificationStatusUpdateRequests request) {
+        adminRepository.updateCertifications(request.getIds(), request.getStatus());
+    }
+
+    void deleteCertificationByIds(ImProperCertificationRequest request) {
+        List<Long> improperCertificationIds = request.getIds();
+        adminRepository.deleteCertificationByIds(improperCertificationIds);
     }
 }

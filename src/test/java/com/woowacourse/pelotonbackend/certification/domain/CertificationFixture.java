@@ -2,7 +2,11 @@ package com.woowacourse.pelotonbackend.certification.domain;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -15,7 +19,11 @@ import org.springframework.data.util.Streamable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
-import com.woowacourse.pelotonbackend.certification.presentation.dto.*;
+import com.woowacourse.pelotonbackend.certification.presentation.dto.CertificationDescriptionUpdateRequest;
+import com.woowacourse.pelotonbackend.certification.presentation.dto.CertificationRequest;
+import com.woowacourse.pelotonbackend.certification.presentation.dto.CertificationResponse;
+import com.woowacourse.pelotonbackend.certification.presentation.dto.CertificationResponses;
+import com.woowacourse.pelotonbackend.certification.presentation.dto.CertificationStatusUpdateRequest;
 import com.woowacourse.pelotonbackend.query.presentation.dto.RaceCertificationsResponse;
 import com.woowacourse.pelotonbackend.vo.ImageUrl;
 
@@ -62,6 +70,12 @@ public class CertificationFixture {
             .missionId(AggregateReference.to(TEST_MISSION_ID))
             .image(TEST_CERTIFICATION_FILE_URL)
             .createdAt(TEST_CREATED_AT)
+            .build();
+    }
+
+    public static Certification createCertificationWithId(Long id) {
+        return createCertificationWithId().toBuilder()
+            .id(id)
             .build();
     }
 

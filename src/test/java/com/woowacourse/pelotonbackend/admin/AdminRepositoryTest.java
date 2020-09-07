@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.test.context.TestExecutionListeners;
 
 import com.woowacourse.pelotonbackend.DataInitializeExecutionListener;
+import com.woowacourse.pelotonbackend.certification.domain.Certification;
+import com.woowacourse.pelotonbackend.certification.domain.CertificationFixture;
+import com.woowacourse.pelotonbackend.certification.domain.CertificationRepository;
 import com.woowacourse.pelotonbackend.member.domain.Member;
 import com.woowacourse.pelotonbackend.member.domain.MemberFixture;
 import com.woowacourse.pelotonbackend.member.domain.MemberRepository;
@@ -49,6 +53,9 @@ class AdminRepositoryTest {
 
     @Autowired
     private RiderRepository riderRepository;
+
+    @Autowired
+    private CertificationRepository certificationRepository;
 
     @DisplayName("여러개의 pendingMember를 조회한다.")
     @Test
@@ -157,16 +164,42 @@ class AdminRepositoryTest {
         assertThat(count).isEqualTo(2);
     }
 
-    @DisplayName("현재 진행중인 레이스의 갯수를 조회한다."
-        + "진행중인 레이스 2개, 이미 끝난 레이스 1개 = 총 3개")
+    @DisplayName("현재 저장되어 있는 인증 사진을 조회한다.")
     @Test
-    void countActiveRaces() {
-        raceRepository.save(RaceFixture.createWithoutId());
-        raceRepository.save(RaceFixture.createWithoutId());
-        raceRepository.save(RaceFixture.createNonActiveWithoutId());
+    void findCertifications() {
+        certificationRepository.save(CertificationFixture.createCertificationWithoutId());
+        certificationRepository.save(CertificationFixture.createCertificationWithoutId());
 
-        Long count = adminRepository.findCountActiveRaces();
+        Page<Certification> certifications = adminRepository.findAllCertifications(TEST_CERTIFICATION_PAGE);
 
-        assertThat(count).isEqualTo(2);
+        assertThat(certifications.getContent()).hasSize(2);
+    }
+
+    @DisplayName("특정 사진의 상태를 변경한다.")
+    @Test
+    void updateCertifications() {
+        certificationRepository.save(CertificationFixture.createCertificationWithoutId());
+        certificationRepository.save(CertificationFixture.createCertificationWithoutId());
+
+        adminRepository.updateCertifications(TEST_FAIL_CERTIFICATION_IDS, TEST_CERTIFICATION_FAIL);
+        Page<Certification> results = adminRepository.findAllCertifications(TEST_CERTIFICATION_PAGE);
+
+        long count = results.getContent().stream()
+            .filter(certification -> Objects.equals(certification.getStatus(), TEST_CERTIFICATION_FAIL))
+            .count();
+
+        assertThat(TEST_FAIL_CERTIFICATION_IDS.size()).isEqualTo(count);
+    }
+
+    @DisplayName("특정 인증을 삭제한다.")
+    @Test
+    void deleteCertifications() {
+        certificationRepository.save(CertificationFixture.createCertificationWithoutId());
+        certificationRepository.save(CertificationFixture.createCertificationWithoutId());
+
+        adminRepository.deleteCertificationByIds(TEST_FAIL_CERTIFICATION_IDS);
+        Page<Certification> results = adminRepository.findAllCertifications(TEST_CERTIFICATION_PAGE);
+
+        assertThat(results.getContent()).hasSize(2 - TEST_FAIL_CERTIFICATION_IDS.size());
     }
 }

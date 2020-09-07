@@ -69,4 +69,39 @@ public class AdminSql {
             .append(" WHERE END_DATE >= (:now)")
             .toString();
     }
+
+    public static String findCertifications() {
+        return new StringBuilder()
+            .append("SELECT CERTIFICATION.ID AS ID")
+            .append(", CERTIFICATION.STATUS AS STATUS")
+            .append(", CERTIFICATION.BASE_IMAGE_URL AS BASE_IMAGE_URL")
+            .append(", CERTIFICATION.DESCRIPTION AS DESCRIPTION")
+            .append(", CERTIFICATION.RIDER_ID AS RIDER_ID, CERTIFICATION.MISSION_ID AS MISSION_ID")
+            .append(", CERTIFICATION.CREATED_AT AS CREATED_AT, CERTIFICATION.UPDATED_AT AS UPDATED_AT")
+            .append(" FROM CERTIFICATION")
+            .append(" ORDER BY CREATED_AT")
+            .append(" LIMIT :pageSize OFFSET :offset")
+            .toString();
+    }
+
+    public static String countByCertifications() {
+        return new StringBuilder()
+            .append("SELECT COUNT(*)")
+            .append(" FROM CERTIFICATION")
+            .toString();
+    }
+
+    public static String updateCertifications() {
+        return new StringBuilder()
+            .append("UPDATE CERTIFICATION SET STATUS = (:status)")
+            .append(" WHERE ID IN (:ids)")
+            .toString();
+    }
+
+    public static String deleteCertificationByIds() {
+        return new StringBuilder()
+            .append("DELETE FROM CERTIFICATION")
+            .append(" WHERE ID IN (:ids)")
+            .toString();
+    }
 }
