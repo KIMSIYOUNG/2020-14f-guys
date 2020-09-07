@@ -49,6 +49,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.woowacourse.pelotonbackend.admin.AdminInterceptor;
 import com.woowacourse.pelotonbackend.certification.domain.Certification;
 import com.woowacourse.pelotonbackend.certification.domain.CertificationFixture;
 import com.woowacourse.pelotonbackend.certification.domain.CertificationStatus;
@@ -91,6 +92,9 @@ class QueryControllerTest {
 
     @MockBean
     private BearerAuthInterceptor bearerAuthInterceptor;
+
+    @MockBean
+    private AdminInterceptor adminInterceptor;
 
     @MockBean
     private LoginMemberArgumentResolver argumentResolver;

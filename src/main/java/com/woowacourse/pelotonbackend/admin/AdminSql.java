@@ -3,7 +3,7 @@ package com.woowacourse.pelotonbackend.admin;
 public class AdminSql {
     public static String findPendingMembers() {
         return new StringBuilder()
-            .append("SELECT PENDING_CASH.ID AS ID PENDING_CASH.MEMBER_ID AS MEMBER_ID, MEMBER.NAME AS NAME")
+            .append("SELECT PENDING_CASH.ID AS ID, PENDING_CASH.MEMBER_ID AS MEMBER_ID, MEMBER.NAME AS NAME")
             .append(", MEMBER.EMAIL AS EMAIL, PENDING_CASH.CASH AS CASH, PENDING_CASH.CASH_STATUS AS STATUS")
             .append(" FROM PENDING_CASH")
             .append(" LEFT JOIN MEMBER")

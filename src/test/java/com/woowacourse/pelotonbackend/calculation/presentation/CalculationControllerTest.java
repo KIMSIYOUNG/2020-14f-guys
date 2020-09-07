@@ -29,6 +29,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import com.woowacourse.pelotonbackend.admin.AdminInterceptor;
 import com.woowacourse.pelotonbackend.calculation.application.CalculationService;
 import com.woowacourse.pelotonbackend.calculation.domain.CalculationFixture;
 import com.woowacourse.pelotonbackend.common.exception.CalculationNotFoundException;
@@ -54,6 +55,9 @@ class CalculationControllerTest {
 
     @MockBean
     private BearerAuthInterceptor bearerAuthInterceptor;
+
+    @MockBean
+    private AdminInterceptor adminInterceptor;
 
     @MockBean
     private LoginMemberArgumentResolver argumentResolver;

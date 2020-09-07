@@ -55,6 +55,13 @@ public class AcceptanceTest {
         return JwtTokenResponse.of(token, ADMIT);
     }
 
+    protected JwtTokenResponse loginAdmin(final MemberCreateRequest request) {
+        createMember(request);
+
+        final String token = jwtTokenProvider.createToken(String.valueOf(request.getKakaoId()));
+        return JwtTokenResponse.of(token, ADMIT);
+    }
+
     protected List<JwtTokenResponse> loginMembers(final List<MemberCreateRequest> requests) {
         requests.forEach(this::createMember);
 
@@ -83,6 +90,18 @@ public class AcceptanceTest {
     protected MemberResponse findMember(final Long kakaoId) {
         return given()
             .header(createTokenHeader(kakaoId))
+            .when()
+            .get(RESOURCE_URL)
+            .then()
+            .log().all()
+            .statusCode(HttpStatus.OK.value())
+            .extract()
+            .as(MemberResponse.class);
+    }
+
+    protected MemberResponse findMember(final JwtTokenResponse tokenResponse) {
+        return given()
+            .header(createTokenHeader(tokenResponse))
             .when()
             .get(RESOURCE_URL)
             .then()

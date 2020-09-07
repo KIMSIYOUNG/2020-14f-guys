@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import com.woowacourse.pelotonbackend.admin.AdminInterceptor;
 import com.woowacourse.pelotonbackend.docs.LoginDocumentation;
 import com.woowacourse.pelotonbackend.member.application.LoginService;
 import com.woowacourse.pelotonbackend.support.BearerAuthInterceptor;
@@ -38,6 +39,9 @@ class LoginControllerTest {
 
     @MockBean
     private LoginMemberArgumentResolver loginMemberArgumentResolver;
+
+    @MockBean
+    private AdminInterceptor adminInterceptor;
 
     private MockMvc mockMvc;
 

@@ -31,6 +31,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.method.HandlerMethod;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.woowacourse.pelotonbackend.admin.AdminInterceptor;
 import com.woowacourse.pelotonbackend.common.exception.RaceNotFoundException;
 import com.woowacourse.pelotonbackend.docs.RaceDocumentation;
 import com.woowacourse.pelotonbackend.member.domain.LoginFixture;
@@ -57,6 +58,9 @@ class RaceControllerTest {
 
     @MockBean
     private BearerAuthInterceptor bearerAuthInterceptor;
+
+    @MockBean
+    private AdminInterceptor adminInterceptor;
 
     @MockBean
     private LoginMemberArgumentResolver argumentResolver;

@@ -19,9 +19,11 @@ import com.woowacourse.pelotonbackend.vo.ImageUrl;
 
 public class MemberFixture {
     public static final String RESOURCE_URL = "/api/members";
+    public static final String ADMIN_EMAIL = "ADMIN@ADMIN.com";
     public static final String EMAIL = "jj@woowa.com";
     public static final String EMAIL2 = "kyle@woowa.com";
     public static final String EMAIL3 = "dd@woowa.com";
+    public static final String ADMIN_NAME = "ADMIN";
     public static final String NAME = "jinju";
     public static final String NAME2 = "sika";
     public static final String NAME3 = "dd";
@@ -35,6 +37,7 @@ public class MemberFixture {
     public static final Long MEMBER_ID2 = 2L;
     public static final Long MEMBER_ID3 = 3L;
     public static final Long WRONG_MEMBER_ID = 10L;
+    public static final Long KAKAO_ADMIN_ID = 50L;
     public static final Long KAKAO_ID = 1L;
     public static final Long KAKAO_ID2 = 2L;
     public static final Long KAKAO_ID3 = 3L;
@@ -92,6 +95,17 @@ public class MemberFixture {
             .name(name)
             .cash(CASH)
             .role(ROLE)
+            .build();
+    }
+
+    public static MemberCreateRequest createAdminRequest() {
+        return MemberCreateRequest.builder()
+            .kakaoId(KAKAO_ADMIN_ID)
+            .cash(CASH)
+            .name(ADMIN_NAME)
+            .profile(PROFILE)
+            .role(Role.ADMIN)
+            .email(ADMIN_EMAIL)
             .build();
     }
 

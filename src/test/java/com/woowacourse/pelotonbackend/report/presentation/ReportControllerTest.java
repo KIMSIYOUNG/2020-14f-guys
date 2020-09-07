@@ -25,6 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.woowacourse.pelotonbackend.admin.AdminInterceptor;
 import com.woowacourse.pelotonbackend.common.exception.ReportDuplicateException;
 import com.woowacourse.pelotonbackend.docs.ReportDocumentation;
 import com.woowacourse.pelotonbackend.member.domain.LoginFixture;
@@ -47,6 +48,9 @@ class ReportControllerTest {
 
     @MockBean
     private BearerAuthInterceptor authInterceptor;
+
+    @MockBean
+    private AdminInterceptor adminInterceptor;
 
     @MockBean
     private LoginMemberArgumentResolver argumentResolver;

@@ -40,6 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.woowacourse.pelotonbackend.admin.AdminInterceptor;
 import com.woowacourse.pelotonbackend.common.ErrorCode;
 import com.woowacourse.pelotonbackend.common.exception.MemberNotFoundException;
 import com.woowacourse.pelotonbackend.docs.MemberDocumentation;
@@ -47,7 +48,11 @@ import com.woowacourse.pelotonbackend.member.application.MemberService;
 import com.woowacourse.pelotonbackend.member.domain.LoginFixture;
 import com.woowacourse.pelotonbackend.member.domain.Member;
 import com.woowacourse.pelotonbackend.member.domain.MemberFixture;
-import com.woowacourse.pelotonbackend.member.presentation.dto.*;
+import com.woowacourse.pelotonbackend.member.presentation.dto.MemberCreateRequest;
+import com.woowacourse.pelotonbackend.member.presentation.dto.MemberNameUpdateRequest;
+import com.woowacourse.pelotonbackend.member.presentation.dto.MemberProfileResponse;
+import com.woowacourse.pelotonbackend.member.presentation.dto.MemberResponse;
+import com.woowacourse.pelotonbackend.member.presentation.dto.MemberResponses;
 import com.woowacourse.pelotonbackend.support.BearerAuthInterceptor;
 
 @ExtendWith(RestDocumentationExtension.class)
@@ -63,6 +68,9 @@ public class MemberControllerTest {
 
     @MockBean
     private BearerAuthInterceptor bearerAuthInterceptor;
+
+    @MockBean
+    private AdminInterceptor adminInterceptor;
 
     @MockBean
     private LoginMemberArgumentResolver argumentResolver;
